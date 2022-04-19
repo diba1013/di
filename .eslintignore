@@ -1,0 +1,9 @@
+.vscode
+node_modules
+coverage
+/dist
+
+pnpm-lock.yaml
+
+# Specifically include some hidden folders
+!.github
