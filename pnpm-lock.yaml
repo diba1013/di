@@ -268,6 +268,7 @@ packages:
 
   /@diba1013/tscz/0.1.0_typescript@4.6.3:
     resolution: {integrity: sha512-r/rEbke2f+cxqTpkCjTHOaFOlcooR57GgpbQdJboSfJyX8o3OU8k8IVGfp8I2S/Eva8tj6ULnR3l4sbRGkXNSA==, tarball: download/@diba1013/tscz/0.1.0/72b742a97f9f8674ea66548154c232b735dbeaf1aa9153ed5ec96db90bdef2b9}
+    engines: {node: '>=16'}
     hasBin: true
     peerDependencies:
       typescript: 4.x

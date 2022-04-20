@@ -1,12 +1,17 @@
 {
-	"name": "@diba1013/typescript-starter",
+	"name": "@diba1013/di",
 	"version": "0.0.1",
-	"description": "",
-	"keywords": [],
+	"description": "The missing dependency injection framework",
+	"keywords": [
+		"typescript",
+		"di",
+		"inject",
+		"async"
+	],
 	"license": "MIT",
 	"repository": {
 		"type": "git",
-		"url": "git://github.com/diba1013/typescript-starter.git"
+		"url": "git://github.com/diba1013/di.git"
 	},
 	"author": "diba1013",
 	"engines": {
