@@ -13,7 +13,7 @@ export default defineConfig({
 	entries: [
 		{
 			name: "index",
-			input: input("index.ts"),
+			input: input("main.ts"),
 			output: ["cjs", "esm", "dts"],
 		},
 	],
