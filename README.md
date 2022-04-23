@@ -1,3 +1,3 @@
-# tscz
+# @diba1013/di
 
-A small wrapper for esbuild rolllup libraries
+A small dependency injection framework using constructor injection and asynchronous services.
