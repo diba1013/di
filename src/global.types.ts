@@ -1,4 +1,4 @@
-import { MaybePromise } from "@/util.types";
+export type MaybePromise<T> = T | PromiseLike<T> | Promise<T>;
 
 export type Primitive = string | symbol | number;
 export type Primitives = {
@@ -17,13 +17,13 @@ export type Services = {
 	[K in string]: Injectable | Services;
 };
 
-export type InjectableFactory<T extends Services, I extends Injectable> = (container: T) => I;
+export type InjectableFactory<T extends Services, I extends Injectable> = (container: Container<T>) => I;
 
 export type ConstantFactory<T extends Services, I extends Constant> = InjectableFactory<T, I>;
 
-export type ServiceConstructor<T extends Services, I extends Service> = new (container: T) => I;
+export type ServiceConstructor<T extends Services, I extends Service> = new (container: Container<T>) => I;
 
-export type ServiceFactory<T extends Services, I extends Service> = (container: T) => MaybePromise<I>;
+export type ServiceFactory<T extends Services, I extends Service> = (container: Container<T>) => MaybePromise<I>;
 
 export interface InjectableDecorator<T extends Services, I extends Injectable | Services> {
 	raw(factory: InjectableFactory<T, I>): I;
@@ -38,15 +38,11 @@ export interface InjectableDecorator<T extends Services, I extends Injectable | 
 }
 
 export type InjectableContext<T extends Services, I extends Injectable> = {
-	container: T;
+	container: Container<T>;
 	decorator: InjectableDecorator<T, I>;
 };
 
 export type InjectableProvider<T extends Services, I extends Injectable> = (context: InjectableContext<T, I>) => I;
-
-export type Box<T extends Services> = {
-	[K in ContainerKey<T>]: InjectableFactory<T, ContainerEntry<T, K>>;
-};
 
 export type Crate<T extends Services> = {
 	[K in ContainerKey<T>]: InjectableProvider<T, ContainerEntry<T, K>>;
