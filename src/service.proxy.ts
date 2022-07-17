@@ -17,7 +17,7 @@ class MethodProxyHandler<T extends Services, S extends Service> implements Proxy
 		if (typeof method === "function") {
 			return method.apply(instance, parameters);
 		}
-		throw new Error(`Member '${this.name}' is not a function (${typeof method})`);
+		throw new Error(`Member '${String(this.name)}' is not a function (${typeof method})`);
 	}
 }
 
