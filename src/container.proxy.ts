@@ -1,32 +1,51 @@
 import { decorator } from "@/proxy.decorator";
-import { Container, ContainerEntry, ContainerKey, Crate, Services } from "@/global.types";
+import {
+	Container,
+	ContainerEntry,
+	ContainerFactory,
+	ContainerKey,
+	InjectableProvider,
+	Service,
+	Services,
+} from "@/global.types";
 
-class ContainerProxyHandler<T extends Services> implements ProxyHandler<Container<T>> {
-	private readonly $crate: Crate<T>;
+class ContainerProxyHandler<T extends Services, K extends ContainerKey<T>> implements ProxyHandler<Container<T>> {
+	private readonly $factory: InjectableProvider<T, K>;
 
-	constructor(crate: Crate<T>) {
-		this.$crate = crate;
+	constructor(factory: InjectableProvider<T, K>) {
+		this.$factory = factory;
 	}
 
-	get<K extends ContainerKey<T>>(target: T, key: string, receiver: T): ContainerEntry<T, K> {
+	get(target: Container<T>, key: string, receiver: Container<T>): ContainerEntry<T, K> {
 		const cached = target[key as K];
 		if (cached !== undefined) {
 			return cached;
 		}
-		const factory = this.$crate[key as K];
-		if (factory !== undefined) {
-			const injectable = factory({
-				container: receiver,
-				decorator: decorator(receiver),
-			});
-			target[key as K] = injectable;
-			return injectable;
-		}
-		throw new Error(`Injectable '${key}' has not been registered or is invalid`);
+		const injectable = this.$factory({
+			key: key as K,
+			container: receiver,
+			decorator: decorator(receiver),
+		});
+		// cache injectable
+		target[key as K] = injectable;
+		return injectable;
 	}
 }
 
-export function container<T extends Services>(crate: Crate<T>): Container<T> {
+export function container<T extends Service, K extends ContainerKey<T> = ContainerKey<T>>(
+	factory: ContainerFactory<T, K>,
+): Container<T> {
+	const provider: InjectableProvider<T, K> = (context) => {
+		if (typeof factory === "function") {
+			return factory(context);
+		} else {
+			const provider = factory[context.key];
+			if (provider === undefined) {
+				throw new Error(`Injectable '${String(context.key)}' has not been registered or is invalid`);
+			}
+			return provider(context);
+		}
+	};
 	const proxy = {} as Container<T>;
-	return new Proxy(proxy, new ContainerProxyHandler<T>(crate));
+	return new Proxy(proxy, new ContainerProxyHandler<T, K>(provider));
 }

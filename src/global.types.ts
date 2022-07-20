@@ -25,6 +25,10 @@ export type ServiceConstructor<T extends Services, I extends Service> = new (con
 
 export type ServiceFactory<T extends Services, I extends Service> = (container: Container<T>) => MaybePromise<I>;
 
+export type ContainerFactory<I extends Service, K extends ContainerKey<I> = keyof I> =
+	| Crate<I>
+	| InjectableProvider<I, K>;
+
 export interface InjectableDecorator<T extends Services, I extends Injectable | Services> {
 	raw(factory: InjectableFactory<T, I>): I;
 
@@ -34,18 +38,27 @@ export interface InjectableDecorator<T extends Services, I extends Injectable | 
 
 	factory<S extends I & Service>(factory: ServiceFactory<T, S>): S;
 
-	nest<S extends I & Services>(services: Crate<S>): S;
+	nest<S extends I & Service>(factory: ContainerFactory<S>): S;
 }
 
-export type InjectableContext<T extends Services, I extends Injectable> = {
+export type InjectableContext<
+	T extends Services,
+	K extends ContainerKey<T>,
+	I extends Injectable = ContainerEntry<T, K>,
+> = {
+	key: K;
 	container: Container<T>;
 	decorator: InjectableDecorator<T, I>;
 };
 
-export type InjectableProvider<T extends Services, I extends Injectable> = (context: InjectableContext<T, I>) => I;
+export type InjectableProvider<
+	T extends Services,
+	K extends ContainerKey<T>,
+	I extends Injectable = ContainerEntry<T, K>,
+> = (context: InjectableContext<T, K, I>) => I;
 
 export type Crate<T extends Services> = {
-	[K in ContainerKey<T>]: InjectableProvider<T, ContainerEntry<T, K>>;
+	[K in ContainerKey<T>]: InjectableProvider<T, K>;
 };
 
 export type Container<T extends Services> = {

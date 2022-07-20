@@ -1,7 +1,7 @@
 import {
 	Constant,
 	ConstantFactory,
-	Crate,
+	ContainerFactory,
 	Injectable,
 	InjectableDecorator,
 	InjectableFactory,
@@ -34,7 +34,7 @@ class ProxiedInjectableDecorator<T extends Service, I extends Injectable> implem
 		return service(this.container, factory);
 	}
 
-	nest<S extends I & Services>(services: Crate<S>): S {
+	nest<S extends I & Service>(services: ContainerFactory<S>): S {
 		return container(services);
 	}
 }

@@ -1,10 +1,10 @@
 import { container } from "@/container.proxy";
-import { Container, Crate, Services } from "@/global.types";
+import { Container, ContainerFactory, Services } from "@/global.types";
 
 export * from "@/global.types";
 
 export const DI = {
-	create<T extends Services>(crate: Crate<T>): Container<T> {
+	create<T extends Services>(crate: ContainerFactory<T>): Container<T> {
 		return container(crate);
 	},
 };

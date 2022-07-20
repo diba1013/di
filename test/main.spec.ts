@@ -32,6 +32,14 @@ type ServiceProvider = {
 	joiner: Joiner;
 };
 
+type DynamicServiceProvider = {
+	context: {
+		prefix: string;
+		retrievers: Record<string, Retriever>;
+	};
+	joiners: Record<string, Joiner>;
+};
+
 describe("DI", () => {
 	it("with raw types should resolve properly", async () => {
 		const { joiner: calculator } = DI.create<ServiceProvider>({
@@ -79,8 +87,8 @@ describe("DI", () => {
 
 	it("service factory should call constructor", async () => {
 		const { joiner: calculator } = DI.create<ServiceProvider>({
-			prefix: () => {
-				return "42";
+			prefix: ({ decorator }) => {
+				return decorator.raw(() => "42");
 			},
 
 			joiner: ({ decorator }) => {
@@ -94,5 +102,36 @@ describe("DI", () => {
 
 		expect(await calculator.join("Hello")).is.equal("Hello 42");
 		expect(await calculator.join("World")).is.equal("World 42");
+	});
+
+	it("nest", async () => {
+		const {
+			joiners: { "42": hello, "24": world },
+		} = DI.create<DynamicServiceProvider>({
+			context: ({ decorator }) => {
+				return decorator.nest({
+					prefix: () => {
+						return "number";
+					},
+
+					retrievers: ({ decorator: child, container: { prefix } }) => {
+						return child.nest(({ key }) => {
+							return new Retriever(`${prefix} ${key}`);
+						});
+					},
+				});
+			},
+
+			joiners: ({ decorator, container: { context } }) => {
+				return decorator.nest(({ key }) => {
+					return new Joiner({
+						retriever: context.retrievers[key],
+					});
+				});
+			},
+		});
+
+		expect(await hello.join("Hello")).is.equal("Hello number 42");
+		expect(await world.join("World")).is.equal("World number 24");
 	});
 });
