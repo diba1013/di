@@ -33,10 +33,7 @@ type ServiceProvider = {
 };
 
 type DynamicServiceProvider = {
-	context: {
-		prefix: string;
-		retrievers: Record<string, Retriever>;
-	};
+	retrievers: Record<string, Retriever>;
 	joiners: Record<string, Joiner>;
 };
 
@@ -108,30 +105,22 @@ describe("DI", () => {
 		const {
 			joiners: { "42": hello, "24": world },
 		} = DI.create<DynamicServiceProvider>({
-			context: ({ decorator }) => {
-				return decorator.nest({
-					prefix: () => {
-						return "number";
-					},
-
-					retrievers: ({ decorator: child, container: { prefix } }) => {
-						return child.nest(({ key }) => {
-							return new Retriever(`${prefix} ${key}`);
-						});
-					},
+			retrievers: ({ decorator }) => {
+				return decorator.nest(({ key }) => {
+					return new Retriever(key);
 				});
 			},
 
-			joiners: ({ decorator, container: { context } }) => {
+			joiners: ({ decorator, container: { retrievers } }) => {
 				return decorator.nest(({ key }) => {
 					return new Joiner({
-						retriever: context.retrievers[key],
+						retriever: retrievers[key],
 					});
 				});
 			},
 		});
 
-		expect(await hello.join("Hello")).is.equal("Hello number 42");
-		expect(await world.join("World")).is.equal("World number 24");
+		expect(await hello.join("Hello")).is.equal("Hello 42");
+		expect(await world.join("World")).is.equal("World 24");
 	});
 });
