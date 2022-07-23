@@ -1,8 +1,9 @@
 import { Service, ServiceFactory, Services } from "@/global.types";
+import { method } from "@/method.proxy";
 
 const INSTANCE = Symbol.for("di:service:instance");
 
-type CachedServiceInstance<S> = S & {
+type CachedServiceInstance<S extends Service> = S & {
 	[INSTANCE]?: S;
 };
 
@@ -16,30 +17,21 @@ class ServiceProxyHandler<T extends Services, S extends Service> implements Prox
 	}
 
 	get<K extends keyof S>(target: CachedServiceInstance<S>, name: string) {
-		const factory: ServiceFactory<T, S> = async (container: T): Promise<S> => {
-			const cached = target[INSTANCE];
-			if (cached !== undefined) {
-				return cached;
-			} else {
-				const instance = await this.$factory(container);
-				target[INSTANCE] = instance;
-				return instance;
+		return method(async () => {
+			if (target[INSTANCE] === undefined) {
+				target[INSTANCE] = await this.$factory(this.$container);
 			}
-		};
-		return new Proxy(factory, new MethodProxyHandler(this.$container, name as K));
-	}
-}
-
-class MethodProxyHandler<T extends Services, S extends Service> implements ProxyHandler<ServiceFactory<T, S>> {
-	constructor(private readonly container: T, private readonly name: keyof S) {}
-
-	async apply(target: ServiceFactory<T, S>, proxy: S, parameters: unknown[]) {
-		const instance = await target(this.container);
-		const method = instance[this.name];
-		if (typeof method === "function") {
-			return method.apply(instance, parameters);
-		}
-		throw new Error(`Member '${String(this.name)}' is not a function (${typeof method})`);
+			const instance = target[INSTANCE];
+			const method = instance[name as K];
+			if (typeof method === "function") {
+				return {
+					name: name as K,
+					instance,
+					method,
+				};
+			}
+			throw new Error(`Member '${String(name)}' is not a function (${typeof method})`);
+		});
 	}
 }
 
