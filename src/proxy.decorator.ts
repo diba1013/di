@@ -1,3 +1,4 @@
+import { container } from "@/container.proxy";
 import {
 	Constant,
 	ConstantFactory,
@@ -11,7 +12,6 @@ import {
 	Services,
 } from "@/global.types";
 import { service } from "@/service.proxy";
-import { container } from "@/container.proxy";
 
 class ProxiedInjectableDecorator<T extends Service, I extends Injectable> implements InjectableDecorator<T, I> {
 	constructor(private readonly container: T) {}

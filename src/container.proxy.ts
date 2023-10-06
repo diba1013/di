@@ -1,4 +1,3 @@
-import { decorator } from "@/proxy.decorator";
 import {
 	Container,
 	ContainerEntry,
@@ -8,6 +7,7 @@ import {
 	Service,
 	Services,
 } from "@/global.types";
+import { decorator } from "@/proxy.decorator";
 
 class ContainerProxyHandler<T extends Services, K extends ContainerKey<T>> implements ProxyHandler<Container<T>> {
 	private readonly $factory: InjectableProvider<T, K>;

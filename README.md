@@ -42,7 +42,7 @@ Constructing a container can be done in different ways. Each property is created
 Additionally, you can reference the container via destructuring and extract necessary dependencies. Since the services are created on demand while being referenced, it is advisable to always use the decorator as to only proxy these services and thus only construct them once a method is called.
 
 ```ts
-const container = DI.create<ServiceProvider>({
+const container = inject<ServiceProvider>({
     // Plain factory for static configuration, does not support async
     config: () => {
         return {
@@ -69,7 +69,7 @@ Containers may only access their own (nested) properties. Nested containers cann
 Nesting containers allow both grouping certain services together (e.g. `auth.user`, `auth.token`), but also to create dynamic services that depend on a string type. You may restrict these types by specifying type aliases accordingly. An example would be to create dynamic endpoints which map to an respective path.
 
 ```ts
-const { api } = Di.create({
+const { api } = inject({
     api: ({ decorator, container: { endpoints } }) => {
         return decorator.nest(({ key: path }) => {
             return new ScopedEndpoint(endpoints[path]);
@@ -98,4 +98,4 @@ class UserService {
 }
 ```
 
-To avoid cyclic type dependencies, the types should be separeted in different files, e.g. `di.types.ts` and `user.types.ts` with their implementations `di.service.ts` and `user.service.ts`.
+To avoid cyclic type dependencies, the types should be separated in different files, e.g. `di.types.ts` and `user.types.ts` with their implementations `di.service.ts` and `user.service.ts`.

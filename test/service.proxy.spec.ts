@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
 import { Services } from "@/global.types";
 import { service } from "@/service.proxy";
+import { describe, expect, it, vi } from "vitest";
 
 type Service = {
 	fetch(): Promise<string>;

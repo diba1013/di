@@ -1,1 +1,3 @@
-module.exports = require("@diba1013/prettier-config");
+const { defineConfig } = require("@diba1013/prettier-config");
+
+module.exports = defineConfig({});

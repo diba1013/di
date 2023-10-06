@@ -1,9 +1,10 @@
+import { inject } from "@/main";
 import { describe, expect, it } from "vitest";
-import { DI } from "@/main";
 
 class Retriever {
 	constructor(private readonly value: string) {}
 
+	// eslint-disable-next-line @typescript-eslint/require-await
 	async get(): Promise<string> {
 		return this.value;
 	}
@@ -39,7 +40,7 @@ type DynamicServiceProvider = {
 
 describe("DI", () => {
 	it("with raw types should resolve properly", async () => {
-		const { joiner: calculator } = DI.create<ServiceProvider>({
+		const { joiner: calculator } = inject<ServiceProvider>({
 			prefix: () => {
 				return "42";
 			},
@@ -58,7 +59,7 @@ describe("DI", () => {
 	});
 
 	it("with factories should resolve properly", async () => {
-		const { joiner: calculator } = DI.create<ServiceProvider>({
+		const { joiner: calculator } = inject<ServiceProvider>({
 			prefix: ({ decorator }) => {
 				return decorator.constant(() => {
 					return "42";
@@ -66,13 +67,13 @@ describe("DI", () => {
 			},
 
 			joiner: ({ decorator }) => {
-				return decorator.factory(async (container) => {
+				return decorator.factory((container) => {
 					return new Joiner(container);
 				});
 			},
 
 			retriever: ({ decorator }) => {
-				return decorator.factory(async ({ prefix }) => {
+				return decorator.factory(({ prefix }) => {
 					return new Retriever(prefix);
 				});
 			},
@@ -83,7 +84,7 @@ describe("DI", () => {
 	});
 
 	it("service factory should call constructor", async () => {
-		const { joiner: calculator } = DI.create<ServiceProvider>({
+		const { joiner: calculator } = inject<ServiceProvider>({
 			prefix: ({ decorator }) => {
 				return decorator.raw(() => "42");
 			},
@@ -104,7 +105,7 @@ describe("DI", () => {
 	it("nest", async () => {
 		const {
 			joiners: { "42": hello, "24": world },
-		} = DI.create<DynamicServiceProvider>({
+		} = inject<DynamicServiceProvider>({
 			retrievers: ({ decorator }) => {
 				return decorator.nest(({ key }) => {
 					return new Retriever(key);

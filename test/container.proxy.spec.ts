@@ -1,6 +1,6 @@
-import { describe, expect, it, vi } from "vitest";
 import { container } from "@/container.proxy";
 import { Services } from "@/global.types";
+import { describe, expect, it, vi } from "vitest";
 
 describe("container", () => {
 	it("should only call factory once", () => {

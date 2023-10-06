@@ -1,5 +1,5 @@
-import { describe, expect, it, vi } from "vitest";
 import { method } from "@/method.proxy";
+import { describe, expect, it, vi } from "vitest";
 
 describe("method", () => {
 	it("should call method with params", async () => {
