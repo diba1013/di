@@ -14,6 +14,7 @@
 		"url": "git://github.com/diba1013/di.git"
 	},
 	"author": "diba1013",
+	"packageManager": "pnpm@9.15.4",
 	"engines": {
 		"node": ">=20",
 		"pnpm": ">=8"
@@ -31,7 +32,7 @@
 	"module": "./dist/index.js",
 	"types": "./dist/index.d.ts",
 	"scripts": {
-		"prepare": "husky install",
+		"prepare": "husky",
 		"build": "tscz",
 		"build:watch": "tscz --watch",
 		"test": "vitest run",
@@ -39,20 +40,21 @@
 		"lint": "eslint .",
 		"lint:fix": "eslint --fix ."
 	},
+	"dependencies": {
+		"@diba1013/types": "^0.2.0"
+	},
 	"devDependencies": {
-		"@commitlint/cli": "^17.7.2",
-		"@commitlint/config-conventional": "^17.7.0",
-		"@diba1013/eslint-config": "^0.8.1",
-		"@diba1013/prettier-config": "^0.8.1",
+		"@commitlint/cli": "^19.6.1",
+		"@commitlint/config-conventional": "^19.6.0",
+		"@diba1013/linter": "^0.13.0",
 		"@diba1013/tscz": "^0.2.1",
-		"@types/node": "^20.8.2",
-		"@vitest/coverage-v8": "^0.34.6",
-		"eslint": "^8.50.0",
-		"husky": "^8.0.3",
-		"lint-staged": "^14.0.1",
-		"prettier": "^3.0.3",
-		"typescript": "^5.2",
-		"vite": "^4.4.11",
-		"vitest": "^0.34.6"
+		"@types/node": "^22.10.7",
+		"@vitest/coverage-v8": "^3.0.2",
+		"eslint": "^9.18.0",
+		"husky": "^9.1.7",
+		"lint-staged": "^15.4.1",
+		"prettier": "^3.4.2",
+		"typescript": "^5.7",
+		"vitest": "^3.0.2"
 	}
 }

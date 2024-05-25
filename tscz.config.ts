@@ -17,7 +17,7 @@ export default defineConfig({
 			output: ["cjs", "esm", "dts"],
 		},
 	],
-	define: {
+	env: {
 		__NAME__: NAME,
 		__VERSION__: version,
 	},
