@@ -1,11 +1,10 @@
-// eslint-disable-next-line spaced-comment
 /// <reference types="vitest" />
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 
 export default defineConfig({
 	resolve: {
 		alias: {
-			"@": "/src",
+			"~": "/lib",
 		},
 	},
 	test: {
@@ -15,8 +14,8 @@ export default defineConfig({
 			enabled: true,
 			provider: "v8",
 			all: true,
-			include: ["src/**/*.ts"],
-			exclude: ["src/**/*.types.ts"],
+			include: ["lib/**/*.ts"],
+			exclude: ["lib/**/*.types.ts"],
 			reporter: ["html", "text-summary", "lcovonly"],
 		},
 	},
