@@ -15,10 +15,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup pnpm
+      - name: Prepare
         uses: pnpm/action-setup@v4
-        with:
-          version: latest
 
       - name: Setup node
         uses: actions/setup-node@v4
