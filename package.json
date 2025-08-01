@@ -14,7 +14,7 @@
 		"url": "git://github.com/diba1013/di.git"
 	},
 	"author": "diba1013",
-	"packageManager": "pnpm@10.12.4",
+	"packageManager": "pnpm@10.13.1",
 	"engines": {
 		"node": ">=20",
 		"pnpm": ">=10"
@@ -45,9 +45,9 @@
 		"@commitlint/config-conventional": "19.8.1",
 		"@diba1013/linter": "0.15.1",
 		"@diba1013/tscz": "0.2.1",
-		"@types/node": "22.15.34",
+		"@types/node": "22.16.5",
 		"@vitest/coverage-v8": "3.2.4",
-		"eslint": "9.30.0",
+		"eslint": "9.32.0",
 		"husky": "9.1.7",
 		"lint-staged": "16.1.2",
 		"prettier": "3.6.2",
