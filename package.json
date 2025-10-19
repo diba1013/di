@@ -1,6 +1,6 @@
 {
 	"name": "@diba1013/di",
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"description": "The missing dependency injection framework",
 	"keywords": [
 		"typescript",
