@@ -1,11 +1,17 @@
 {
 	"extends": "./tsconfig.base.json",
 	"compilerOptions": {
+		"composite": true,
 		"baseUrl": ".",
 		"lib": ["ESNext"],
 		"paths": {
 			"~/*": ["lib/*"]
 		}
 	},
-	"include": ["lib/**/*.ts", "test/**/*.ts", "tscz.config.ts", "vitest.config.ts"]
+	"include": ["lib/**/*.ts", "test/**/*.ts"],
+	"references": [
+		{
+			"path": "./tsconfig.tools.json"
+		}
+	]
 }
