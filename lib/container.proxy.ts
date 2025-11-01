@@ -1,5 +1,6 @@
 import type {
 	Crate,
+	GlobalInjectableProvider,
 	InjectableDecorator,
 	InjectableFactory,
 	Scope,
@@ -19,9 +20,10 @@ export function inject<Container extends Services>(crate: Crate<Container>): Sco
 	return new Proxy({} as Scope<Container>, {
 		get: <Key extends ScopeKey<Container>>(
 			target: Scope<Container>,
-			key: string | symbol,
+			parameter: string | symbol,
 			receiver: Scope<Container>,
 		) => {
+			const key = parameter as Key;
 			// Resolve a promised based invocation with the proxy instance as we do not need to wait here.
 			// This is the case if someone calls await on this function or the return in some way.
 			if (key === "then") {
@@ -39,12 +41,27 @@ export function inject<Container extends Services>(crate: Crate<Container>): Sco
 			// The spread operator captures all arguments that the function was called with.
 			return async (...context: ScopeContext<Container, Key>) => {
 				// TODO: Ideally the decorator handles the id creation and return it or manually invoke a cache wrapper.
-				const id = `${key as Key}:${JSON.stringify({ context })}`;
+				const id = `${key}:${JSON.stringify({ context })}`;
 				const cached = cache.get(id);
 				if (cached) {
 					return cached;
 				}
-				const instance = await invoke(crate, key as Key, receiver, context);
+
+				const instance = await instantiate(
+					receiver,
+					context,
+					async ({ decorator, container, scope }): Promise<ScopeValue<Container, Key>> => {
+						// We just assume that the key actually resolves to any factory.
+						// Therefore we should at least return undefined in case it is not.
+						// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
+						return await crate[key]?.({
+							key,
+							container,
+							scope,
+							decorator,
+						});
+					},
+				);
 				cache.set(id, instance);
 				return instance;
 			};
@@ -96,28 +113,19 @@ function reduce<Container extends Services>(): SnoopingContainer<Container> {
 	});
 }
 
-function NoopDecorator<
-	Container extends Services,
-	Key extends ScopeKey<Container>,
-	Inject = ScopeValue<Container, Key>,
->(): InjectableDecorator<never, Inject> {
+function NoopDecorator<Result>(): InjectableDecorator<never, Result> {
 	return {
 		// Satisfies interface.
 		// eslint-disable-next-line @typescript-eslint/require-await
-		invoke: async (): Promise<Inject> => {
+		invoke: async (): Promise<Result> => {
 			// This result should never be used as this decorator is only responsible for capturing dependencies.
 			// But we cannot throw an error here as we actually need this invocation to happen.
-			return undefined as unknown as Inject;
+			return undefined as unknown as Result;
 		},
 	};
 }
 
-function Decorator<
-	Container extends Services,
-	Key extends ScopeKey<Container>,
-	Context extends ScopeContext<Container, Key> = ScopeContext<Container, Key>,
-	Inject = ScopeValue<Container, Key>,
->(context: Context): InjectableDecorator<Context, Inject> {
+function Decorator<Context extends unknown[], Inject>(context: Context): InjectableDecorator<Context, Inject> {
 	return {
 		invoke: async (factory: InjectableFactory<Context, Inject>): Promise<Inject> => {
 			// Pass the all arguments (plural) to the factory, ensuring that they are properly proxied.
@@ -126,32 +134,24 @@ function Decorator<
 	};
 }
 
-async function invoke<Container extends Services, Key extends ScopeKey<Container>>(
-	crate: Crate<Container>,
-	key: Key,
+async function instantiate<Container extends Services, Context extends unknown[], Result>(
 	scope: Scope<Container>,
-	context: ScopeContext<Container, Key>,
-): Promise<ScopeValue<Container, Key>> {
-	const target = crate[key];
-
-	// Snoop which services need to be resolved by invoking with a dummy container.
+	context: Context,
+	factory: GlobalInjectableProvider<Container, Context, Result>,
+): Promise<Result> {
 	const fork = reduce<Container>();
-	// The decorator ensures that the service factory is ignored and not invoked during this first call.
-	await target({
+
+	await factory({
 		container: fork,
-		key,
-		decorator: NoopDecorator<Container, Key>(),
+		decorator: NoopDecorator(),
 		scope,
 	});
-	// Perform service initialization with the root container.
-	// This must not necessarily be a fully resolved container as it will only use the captured keys from the first initialization.
-	const forked: Container = await fork(scope);
-	// Call actual methods with resolved container.
-	const resolved = await target({
+
+	const forked = await fork(scope);
+
+	return await factory({
 		container: forked,
+		decorator: Decorator(context),
 		scope,
-		key,
-		decorator: Decorator<Container, Key>(context),
 	});
-	return resolved;
 }
