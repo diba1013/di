@@ -1,5 +1,5 @@
 import { inject } from "~/main";
-import { it } from "vitest";
+import { expect, it } from "vitest";
 
 type Database = {
 	name: () => string;
@@ -21,7 +21,7 @@ type DynamicApplicationServiceProvider = {
 	api: (name: string) => Endpoint;
 };
 
-it("inject should resolve all services correctly", async ({ expect }) => {
+it("inject should resolve all services correctly", async () => {
 	const dynamic = inject<DynamicApplicationServiceProvider>({
 		config: ({ decorator }) => {
 			return decorator.invoke(() => {
