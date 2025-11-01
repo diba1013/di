@@ -25,7 +25,14 @@ export function inject<Container extends Services>(crate: Crate<Container>): Sco
 			// Resolve a promised based invocation with the proxy instance as we do not need to wait here.
 			// This is the case if someone calls await on this function or the return in some way.
 			if (key === "then") {
-				return receiver;
+				// We ideally want to return the receiver, since we want essentially ignore the erroneous await.
+				// Though the return value expects a function that would then need to return the receiver.
+				// However this would leads to a infinite recursion, due to the Promise.resolve trying to recursively resolve `then` again.
+				// Due to a quirk (or possibly intended behavior), it does not matter what we return here as actual value (it needs to be an object, not a function).
+				// We break this by returning an already resolved promise, which then falls back to the proxy object.
+				// The tests should capture if this changes.
+				// FIXME: This might be a optimization from the V8 engine, but could also be an (undocumented) behaviour of promises and/or proxies.
+				return Promise.resolve();
 			}
 			// Return a method to allow service instantiation.
 			// Since this is within a proxy, checking for a correct type match does not really offset the complexity.

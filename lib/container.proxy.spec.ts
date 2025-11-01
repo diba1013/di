@@ -147,6 +147,8 @@ it("inject should resolve promise from scope with the correct value", async () =
 		message: string;
 	};
 
+	// This is not accepted by typescript, but there might be ways where it is implicitly awaited.
+	// For example, when wrapping it in a Promise function (which then implicitly calls `then`).
 	// eslint-disable-next-line @typescript-eslint/await-thenable
 	const cut = await inject<ServiceProvider>({
 		message: ({ decorator }) => {
