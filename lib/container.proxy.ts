@@ -6,6 +6,7 @@ import type {
 	Scope,
 	ScopeContext,
 	ScopeKey,
+	ScopeProvider,
 	ScopeValue,
 	Services,
 } from "~/global.types";
@@ -67,6 +68,20 @@ export function inject<Container extends Services>(crate: Crate<Container>): Sco
 			};
 		},
 	});
+}
+
+export function create<Container extends Services>(crate: Crate<Container>): ScopeProvider<Container> {
+	const scope = inject(crate);
+
+	return {
+		scope: (): Scope<Container> => {
+			return scope;
+		},
+
+		resolve: async <Result>(factory: GlobalInjectableProvider<Container, never[], Result>): Promise<Result> => {
+			return await instantiate(scope, [], factory);
+		},
+	};
 }
 
 const EMPTY_PROXY = new Proxy(
