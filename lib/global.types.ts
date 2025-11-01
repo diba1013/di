@@ -95,6 +95,12 @@ export type Crate<Container extends Services> = {
 	[Key in ScopeKey<Container>]: InjectableProvider<Container, Key>;
 };
 
+export type ScopeProvider<Container extends Services> = {
+	scope(): Scope<Services>;
+
+	resolve<Result>(factory: GlobalInjectableProvider<Container, never[], Result>): Promise<Result>;
+};
+
 /**
  *
  */

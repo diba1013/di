@@ -1,4 +1,4 @@
-import { inject } from "~/main";
+import { create, inject } from "~/main";
 import { expect, it } from "vitest";
 
 type Database = {
@@ -69,4 +69,57 @@ it("inject should resolve all services correctly", async () => {
 
 	expect(du.fetch()).to.eq("[redis] user");
 	expect(dr.fetch()).to.eq("[redis] repository");
+});
+
+it("create should allow to resolve arbitrary functions with scope context", async () => {
+	const dynamic = create<DynamicApplicationServiceProvider>({
+		config: ({ decorator }) => {
+			return decorator.invoke(() => {
+				return {
+					environment: process.env.NODE_ENV ?? "development",
+				};
+			});
+		},
+
+		redis: ({ decorator }) => {
+			return decorator.invoke(() => {
+				return {
+					name: () => "redis",
+				};
+			});
+		},
+
+		mysql: ({ decorator }) => {
+			return decorator.invoke(() => {
+				return {
+					name: () => "mysql",
+				};
+			});
+		},
+
+		storage: ({ decorator, container: { config }, scope }) => {
+			return decorator.invoke(() => {
+				return config.environment === "production" ? scope.mysql() : scope.redis();
+			});
+		},
+
+		api: ({ decorator, container: { storage } }) => {
+			return decorator.invoke((key) => {
+				return {
+					fetch() {
+						return `[${storage.name()}] ${key}`;
+					},
+				};
+			});
+		},
+	});
+
+	const result = await dynamic.resolve(({ decorator, scope: { api } }) => {
+		return decorator.invoke(async () => {
+			const du = await api("user");
+			return du.fetch();
+		});
+	});
+
+	expect(result).to.eql("[redis] user");
 });

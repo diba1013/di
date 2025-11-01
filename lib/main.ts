@@ -1,2 +1,2 @@
-export { inject } from "~/container.proxy";
+export { create, inject } from "~/container.proxy";
 export * from "~/global.types";
