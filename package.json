@@ -52,7 +52,7 @@
 		"@commitlint/cli": "20.1.0",
 		"@commitlint/config-conventional": "20.0.0",
 		"@diba1013/linter": "0.16.0",
-		"@types/node": "22.18.13",
+		"@types/node": "24.9.2",
 		"@vitest/coverage-v8": "3.2.4",
 		"eslint": "9.38.0",
 		"husky": "9.1.7",
