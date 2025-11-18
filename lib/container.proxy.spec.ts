@@ -1,8 +1,8 @@
 import type { InjectableFactory, InjectableProvider } from "~/global.types";
 import { inject } from "~/container.proxy";
-import { it, vi } from "vitest";
+import { expect, it, vi } from "vitest";
 
-it("inject should call decorated function for context retrieval without calling factory", async ({ expect }) => {
+it("inject should call decorated function for context retrieval without calling factory", async () => {
 	type ServiceProvider = {
 		fork: string;
 	};
@@ -26,7 +26,7 @@ it("inject should call decorated function for context retrieval without calling 
 	expect(factory).toHaveBeenCalledTimes(1);
 });
 
-it("inject should call factory only once during resolve if resolved multiple times", async ({ expect }) => {
+it("inject should call factory only once during resolve if resolved multiple times", async () => {
 	type ServiceProvider = {
 		fork: string;
 	};
@@ -49,7 +49,7 @@ it("inject should call factory only once during resolve if resolved multiple tim
 	expect(factory).toHaveBeenCalledOnce();
 });
 
-it("inject should not pass context to unrelated functions when resolved through container", async ({ expect }) => {
+it("inject should not pass context to unrelated functions when resolved through container", async () => {
 	type ServiceProvider = {
 		message: string;
 		log: (scope: string) => Promise<string>;
@@ -82,7 +82,7 @@ it("inject should not pass context to unrelated functions when resolved through 
 	expect(message).toHaveBeenCalledWith();
 });
 
-it("inject should proxy all context to the factory", async ({ expect }) => {
+it("inject should proxy all context to the factory", async () => {
 	type ServiceProvider = {
 		log: (scope: string, message: string) => string;
 	};
@@ -103,7 +103,7 @@ it("inject should proxy all context to the factory", async ({ expect }) => {
 	expect(result).to.eq("[scope] message");
 });
 
-it("inject should resolve nested object from injectable", async ({ expect }) => {
+it("inject should resolve nested object from injectable", async () => {
 	type ServiceProvider = {
 		config: {
 			database: {
@@ -142,11 +142,13 @@ it("inject should resolve nested object from injectable", async ({ expect }) => 
 	expect(result).to.eq("Database 'redis' connected.");
 });
 
-it("inject should resolve promise from scope with the correct value", async ({ expect }) => {
+it("inject should resolve promise from scope with the correct value", async () => {
 	type ServiceProvider = {
 		message: string;
 	};
 
+	// This is not accepted by typescript, but there might be ways where it is implicitly awaited.
+	// For example, when wrapping it in a Promise function (which then implicitly calls `then`).
 	// eslint-disable-next-line @typescript-eslint/await-thenable
 	const cut = await inject<ServiceProvider>({
 		message: ({ decorator }) => {

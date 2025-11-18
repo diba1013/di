@@ -1,5 +1,6 @@
-import { inject } from "~/main";
-import { it } from "vitest";
+import type { Crate } from "~/main";
+import { create, inject } from "~/main";
+import { beforeEach, describe, expect, it } from "vitest";
 
 type Database = {
 	name: () => string;
@@ -21,52 +22,73 @@ type DynamicApplicationServiceProvider = {
 	api: (name: string) => Endpoint;
 };
 
-it("inject should resolve all services correctly", async ({ expect }) => {
-	const dynamic = inject<DynamicApplicationServiceProvider>({
-		config: ({ decorator }) => {
-			return decorator.invoke(() => {
-				return {
-					environment: process.env.NODE_ENV ?? "development",
-				};
-			});
-		},
+describe("library", () => {
+	let cut: Crate<DynamicApplicationServiceProvider>;
 
-		redis: ({ decorator }) => {
-			return decorator.invoke(() => {
-				return {
-					name: () => "redis",
-				};
-			});
-		},
+	beforeEach(() => {
+		cut = {
+			config: ({ decorator }) => {
+				return decorator.invoke(() => {
+					return {
+						environment: process.env.NODE_ENV ?? "development",
+					};
+				});
+			},
 
-		mysql: ({ decorator }) => {
-			return decorator.invoke(() => {
-				return {
-					name: () => "mysql",
-				};
-			});
-		},
+			redis: ({ decorator }) => {
+				return decorator.invoke(() => {
+					return {
+						name: () => "redis",
+					};
+				});
+			},
 
-		storage: ({ decorator, container: { config }, scope }) => {
-			return decorator.invoke(() => {
-				return config.environment === "production" ? scope.mysql() : scope.redis();
-			});
-		},
+			mysql: ({ decorator }) => {
+				return decorator.invoke(() => {
+					return {
+						name: () => "mysql",
+					};
+				});
+			},
 
-		api: ({ decorator, container: { storage } }) => {
-			return decorator.invoke((key) => {
-				return {
-					fetch() {
-						return `[${storage.name()}] ${key}`;
-					},
-				};
-			});
-		},
+			storage: ({ decorator, container: { config }, scope }) => {
+				return decorator.invoke(() => {
+					return config.environment === "production" ? scope.mysql() : scope.redis();
+				});
+			},
+
+			api: ({ decorator, container: { storage } }) => {
+				return decorator.invoke((key) => {
+					return {
+						fetch() {
+							return `[${storage.name()}] ${key}`;
+						},
+					};
+				});
+			},
+		};
 	});
 
-	const du = await dynamic.api("user");
-	const dr = await dynamic.api("repository");
+	it("inject should resolve all services correctly", async () => {
+		const dynamic = inject(cut);
 
-	expect(du.fetch()).to.eq("[redis] user");
-	expect(dr.fetch()).to.eq("[redis] repository");
+		const du = await dynamic.api("user");
+		const dr = await dynamic.api("repository");
+
+		expect(du.fetch()).to.eq("[redis] user");
+		expect(dr.fetch()).to.eq("[redis] repository");
+	});
+
+	it("create should allow to resolve arbitrary functions with scope context", async () => {
+		const dynamic = create(cut);
+
+		const result = await dynamic.resolve(({ decorator, scope: { api } }) => {
+			return decorator.invoke(async () => {
+				const du = await api("user");
+				return du.fetch();
+			});
+		});
+
+		expect(result).to.eql("[redis] user");
+	});
 });

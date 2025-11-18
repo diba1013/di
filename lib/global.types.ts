@@ -95,9 +95,25 @@ export type Crate<Container extends Services> = {
 	[Key in ScopeKey<Container>]: InjectableProvider<Container, Key>;
 };
 
+export type ScopeProvider<Container extends Services> = {
+	scope(): Scope<Services>;
+
+	resolve<Result>(factory: GlobalInjectableProvider<Container, never[], Result>): Promise<Result>;
+};
+
 /**
  *
  */
 export type InjectableProvider<Container extends Services, Key extends ScopeKey<Container>> = (
 	context: InjectableContext<Container, Key>,
 ) => MaybePromise<ScopeValue<Container, Key>>;
+
+export type GlobalInjectableContext<Container extends Services, Context extends unknown[], Result> = {
+	container: OmitProxiedInjectableFactories<Container>;
+	scope: Scope<Container>;
+	decorator: InjectableDecorator<Context, Result>;
+};
+
+export type GlobalInjectableProvider<Container extends Services, Context extends unknown[], Result> = (
+	context: GlobalInjectableContext<Container, Context, Result>,
+) => MaybePromise<Result>;
