@@ -1,16 +1,23 @@
 import type {
 	Crate,
-	GlobalInjectableProvider,
 	InjectableDecorator,
 	InjectableFactory,
+	InjectableProvider,
+	KeyedScopeFactoryParameters,
+	KeyedScopeFactoryReturnValue,
 	Scope,
-	ScopeContext,
 	ScopeKey,
 	ScopeProvider,
-	ScopeValue,
 	Services,
 } from "~/global.types";
 
+/**
+ * Creates a scope from a crate.
+ * While this provides low-level access to the scope, it is recommended to use the {@link create} function instead.
+ *
+ * @param crate The crate to create a scope from.
+ * @returns A scope.
+ */
 export function inject<Container extends Services>(crate: Crate<Container>): Scope<Container> {
 	const cache = new Map<string, unknown>();
 
@@ -40,7 +47,7 @@ export function inject<Container extends Services>(crate: Crate<Container>): Sco
 			// Return a method to allow service instantiation.
 			// Since this is within a proxy, checking for a correct type match does not really offset the complexity.
 			// The spread operator captures all arguments that the function was called with.
-			return async (...context: ScopeContext<Container, Key>) => {
+			return async (...context: KeyedScopeFactoryParameters<Container[Key]>) => {
 				// TODO: Ideally the decorator handles the id creation and return it or manually invoke a cache wrapper.
 				const id = `${key}:${JSON.stringify({ context })}`;
 				const cached = cache.get(id);
@@ -51,7 +58,7 @@ export function inject<Container extends Services>(crate: Crate<Container>): Sco
 				const instance = await instantiate(
 					receiver,
 					context,
-					async ({ decorator, container, scope }): Promise<ScopeValue<Container, Key>> => {
+					async ({ decorator, container, scope }): Promise<KeyedScopeFactoryReturnValue<Container[Key]>> => {
 						// We just assume that the key actually resolves to any factory.
 						// Therefore we should at least return undefined in case it is not.
 						// eslint-disable-next-line @typescript-eslint/no-unnecessary-condition
@@ -70,6 +77,27 @@ export function inject<Container extends Services>(crate: Crate<Container>): Sco
 	});
 }
 
+/**
+ * Creates a scope provider from a crate.
+ * This provides some high-level wrapper for to operate on a scope.
+ *
+ * @example
+ * ```ts
+ * const scope = create({
+ * 	// your factory functions.
+ * });
+ *
+ * const instance = await scope.resolve(({decorator}) => {
+ * 	return decorator.invoke(() => {
+ * 		// your factory function.
+ * 	});
+ * })
+ * ```
+ *
+ *
+ * @param crate The crate to create a scope provider from.
+ * @returns A scope provider.
+ */
 export function create<Container extends Services>(crate: Crate<Container>): ScopeProvider<Container> {
 	const scope = inject(crate);
 
@@ -78,7 +106,9 @@ export function create<Container extends Services>(crate: Crate<Container>): Sco
 			return scope;
 		},
 
-		resolve: async <Result>(factory: GlobalInjectableProvider<Container, never[], Result>): Promise<Result> => {
+		resolve: async <Result>(
+			factory: InjectableProvider<Container, undefined, never[], Result>,
+		): Promise<Result> => {
 			return await instantiate(scope, [], factory);
 		},
 	};
@@ -152,19 +182,24 @@ function Decorator<Context extends unknown[], Inject>(context: Context): Injecta
 async function instantiate<Container extends Services, Context extends unknown[], Result>(
 	scope: Scope<Container>,
 	context: Context,
-	factory: GlobalInjectableProvider<Container, Context, Result>,
+	factory: InjectableProvider<Container, undefined, Context, Result>,
 ): Promise<Result> {
 	const fork = reduce<Container>();
 
+	// Invoke factory to detect all services used within the initialization.
 	await factory({
+		key: undefined,
 		container: fork,
 		decorator: NoopDecorator(),
 		scope,
 	});
 
+	// Now that we know all services used, instantiate the object with a new scope.
 	const forked = await fork(scope);
 
+	// Invoke factory again to actually construct the injectable.
 	return await factory({
+		key: undefined,
 		container: forked,
 		decorator: Decorator(context),
 		scope,
