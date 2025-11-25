@@ -1,6 +1,6 @@
 # @diba1013/di
 
-A small dependency injection library using constructor injection and asynchronous services.
+A small dependency injection library providing inversion of control for asynchronous service construction.
 
 ## Installation
 
@@ -18,13 +18,13 @@ npm add @diba1013/di
 
 ## Motivation
 
-While there are many [inversion of control](https://martinfowler.com/articles/dipInTheWild.html) libraries out there, they usually come pre-packaged as part of a dedicated framework. As such, they use a customized own approach to solve the registration process of dependencies, e.g. decorators or module registration.
+While there are many [inversion of control](https://martinfowler.com/articles/dipInTheWild.html) libraries out there, they usually come pre-packaged as part of a dedicated framework.  As such, they use a customized own approach to solve the registration process of dependencies as well as how to retrieve / inject dependencies (e.g. decorators or module registration).
 
-Standalone libraries often do not have this luxury of deeply integrated construction methods provided by frameworks. Therefore the program often needs to be built around the library, rather than integrating the library into the program. This is noticeable by to the complexity of the registration process where most libraries choose to have individual methods, allowing to bind each dependency to its injectable value.
+Standalone libraries often do not have this luxury of deeply integrated construction methods provided by frameworks. These often require a lot of boilerplate code, usually by the way of registering dependencies. These registration methods often only allow for synchronous registration or manual dependency declaration, eliminating the benefits of inversion of control.
 
-While this library does not try to solve all of these problems, especially notable implementation of frameworks, it tries to follow these principles:
+This library tries to provide a simple and lightweight way of using inversion of control for asynchronous service construction. It does so by providing the following features:
 
-1. Asynchronous injectable factories to make use of expensive setup construction (e.g. code splitting).
+1. Asynchronous injectable factories to make use of expensive setup construction (e.g. code splitting or modules).
 2. Transparent dependency declaration by normal usage of invocation functions by abstracting injectable construction.
 3. Type-safety through inference so that types do not need to be explicitly defined for each factory.
 
@@ -32,7 +32,7 @@ While this library does not try to solve all of these problems, especially notab
 
 A *container* represent a flat object consisting of key to injectable pairs. The injectable value can be any static object or a factory constructing the object based on a single parameter.
 
-* Services are only constructed once per argument invocation. For now, arguments are serialized via `JSON.stringify`.
+* Services are only constructed once per argument invocation. For now, arguments are serialized via `JSON.stringify`. This may change at a later time.
 * The typical usage reserves a limited amount of *root* services that then construct the remaining dependency tree, eliminating to pass the *scope* through many files.
 * An injectable can technically be of any return type, though plain objects / classes are assumed; functions are interpreted as parameterized factories for the resulting injectable.
 
@@ -45,7 +45,7 @@ type ServiceProvider = {
     // Dynamically create services via a parameter.
     cache: (namespace: string) => Cache;
     // The root service that is invoked via the scope.
-    user: UserService;
+    users: UserService;
 }
 ```
 
@@ -83,7 +83,7 @@ const services = inject<ServiceProvider>({
 	// While the scope can be accessed within the decorated factory the following principles should be adhered to:
 	//   1. Move all expensive calculation within the decorated factory.
 	//   2. Ensure that all required services have been accessed outside of the decorated factory via the container.
-	user: ({ decorator, container: { config }, scope: { cache } }) => {
+	users: ({ decorator, container: { config }, scope: { cache } }) => {
         // While the config has already been initialized here, the cache will only be initialized when the factory is called.
 		return decorator.invoke(async () => {
 			return new UserService({
@@ -107,4 +107,36 @@ const users = await services.user();
 const user = await users.fetch({
 	id: 123,
 });
+```
+
+To construct a dynamic service, you can invoke the injectable factory function and provide the required parameters, as declared on the passed `ServiceProvider` type.
+
+```ts
+// The invocation does not need to care about configuration or caching setup.
+const cache = await services.cache("memory");
+// The service is returned as-is and can be used as if it were constructed manually.
+await cache.set({
+	id: 123,
+});
+```
+
+The following example describes the more preferred entry point for a more involved .
+
+```ts
+const services = create<ServiceProvider>({
+	// ... The same construction as above
+});
+
+// Resolve takes the same factory function as for a service, but does not bind itself to the invocation container.
+// This allows for quick instantiation, especially when multiple asynchronous services are required.
+// However, you still cannot pass the container directly as argument, because its fields must be destructured during outer factory invocation.
+export const app = await services.resolve(({ decorator, container: { users } }) => {
+	return decorator.invoke(async () => {
+		return new App({
+			users,
+		});
+	})
+});
+
+await app.listen(3000);
 ```

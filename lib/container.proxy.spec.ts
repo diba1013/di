@@ -7,10 +7,10 @@ it("inject should call decorated function for context retrieval without calling 
 		fork: string;
 	};
 
-	const factory = vi.fn<InjectableFactory<never, string>>();
+	const factory = vi.fn<InjectableFactory<never[], string>>();
 	factory.mockResolvedValue("42");
 
-	const decorated = vi.fn<InjectableProvider<ServiceProvider, "fork">>(({ decorator }) => {
+	const decorated = vi.fn<InjectableProvider<ServiceProvider, "fork", never[], string>>(({ decorator }) => {
 		return decorator.invoke(factory);
 	});
 
@@ -31,7 +31,7 @@ it("inject should call factory only once during resolve if resolved multiple tim
 		fork: string;
 	};
 
-	const factory = vi.fn<InjectableFactory<never, string>>();
+	const factory = vi.fn<InjectableFactory<never[], string>>();
 	factory.mockResolvedValue("42");
 
 	const cut = inject<ServiceProvider>({
@@ -55,7 +55,7 @@ it("inject should not pass context to unrelated functions when resolved through 
 		log: (scope: string) => Promise<string>;
 	};
 
-	const message = vi.fn<InjectableFactory<never, string>>();
+	const message = vi.fn<InjectableFactory<never[], string>>();
 	message.mockResolvedValue("42");
 
 	const log = vi.fn<InjectableFactory<[string], string>>();
