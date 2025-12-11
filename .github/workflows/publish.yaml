@@ -14,8 +14,8 @@ permissions:
 
 jobs:
   publish:
+    name: Release
     runs-on: ubuntu-latest
-    name: Publish artifact
 
     env:
       NPM_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
