@@ -146,7 +146,7 @@ export type ScopeProvider<Container extends Services> = {
 	 *
 	 * @returns The scope.
 	 */
-	scope(): Scope<Services>;
+	scope(): Scope<Container>;
 
 	/**
 	 * Resolves a value from the scope. This uses the same factory as the injectable provider.
