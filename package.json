@@ -50,7 +50,7 @@
 	"devDependencies": {
 		"@commitlint/cli": "20.1.0",
 		"@commitlint/config-conventional": "20.0.0",
-		"@diba1013/linter": "0.17.0",
+		"@diba1013/linter": "0.17.1",
 		"@types/node": "24.10.1",
 		"@vitest/coverage-v8": "4.0.15",
 		"eslint": "9.39.1",

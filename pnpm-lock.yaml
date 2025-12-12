@@ -22,8 +22,8 @@ importers:
         specifier: 20.0.0
         version: 20.0.0
       '@diba1013/linter':
-        specifier: 0.17.0
-        version: 0.17.0(@typescript-eslint/parser@8.48.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.1(jiti@2.6.1))(prettier@3.7.1)(typescript@5.9.3)
+        specifier: 0.17.1
+        version: 0.17.1(@typescript-eslint/parser@8.48.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.1(jiti@2.6.1))(prettier@3.7.1)(typescript@5.9.3)
       '@types/node':
         specifier: 24.10.1
         version: 24.10.1
@@ -183,8 +183,8 @@ packages:
     resolution: {integrity: sha512-bVUNBqG6aznYcYjTjnc3+Cat/iBgbgpflxbIBTnsHTX0YVpnmINPEkSRWymT2Q8aSH3Y7aKnEbunilkYe8TybA==}
     engines: {node: '>=v18'}
 
-  '@diba1013/linter@0.17.0':
-    resolution: {integrity: sha512-S5KqjnWer7OeCnxZG5mRD5Z4kdEOIp6KS7NBMci41+FHMnDzlOyCV8s1pW4SlPoLEep3AFosb8YCHm1/D66vDg==, tarball: https://npm.pkg.github.com/download/@diba1013/linter/0.17.0/58d1fe01c196e874b494e859fb26b2b66ace0c3f}
+  '@diba1013/linter@0.17.1':
+    resolution: {integrity: sha512-HIeUU/KKxtVmVx2k4KzcSJL6YN858J5pKylZ134NzIFWv1lXLTfQZprEtZNSPVfwwSDR4ciT/WCM1aN7UilrCw==, tarball: https://npm.pkg.github.com/download/@diba1013/linter/0.17.1/4272361f6e9336af7d0282fb2cbdf527039c1d68}
     engines: {node: '>=24'}
     peerDependencies:
       eslint: 9.x
@@ -3077,7 +3077,7 @@ snapshots:
       '@types/conventional-commits-parser': 5.0.0
       chalk: 5.4.1
 
-  '@diba1013/linter@0.17.0(@typescript-eslint/parser@8.48.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.1(jiti@2.6.1))(prettier@3.7.1)(typescript@5.9.3)':
+  '@diba1013/linter@0.17.1(@typescript-eslint/parser@8.48.0(eslint@9.39.1(jiti@2.6.1))(typescript@5.9.3))(eslint@9.39.1(jiti@2.6.1))(prettier@3.7.1)(typescript@5.9.3)':
     dependencies:
       '@eslint/eslintrc': 3.3.1
       '@eslint/js': 9.39.1
