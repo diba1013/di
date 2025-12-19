@@ -10,10 +10,12 @@ export default defineConfig({
 	test: {
 		environment: "node",
 		restoreMocks: true,
+		typecheck: {
+			enabled: true,
+		},
 		coverage: {
 			enabled: true,
 			provider: "v8",
-			all: true,
 			include: ["lib/**/*.ts"],
 			exclude: ["lib/**/*.types.ts"],
 			reporter: ["html", "text-summary", "lcovonly"],
