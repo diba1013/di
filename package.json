@@ -13,7 +13,7 @@
 		"url": "git+https://github.com/diba1013/di.git"
 	},
 	"author": "diba1013",
-	"packageManager": "pnpm@10.24.0",
+	"packageManager": "pnpm@10.27.0",
 	"engines": {
 		"node": ">=20",
 		"pnpm": ">=10"
@@ -48,18 +48,18 @@
 		"@diba1013/types": "0.2.0"
 	},
 	"devDependencies": {
-		"@commitlint/cli": "20.1.0",
-		"@commitlint/config-conventional": "20.0.0",
+		"@commitlint/cli": "20.2.0",
+		"@commitlint/config-conventional": "20.2.0",
 		"@diba1013/linter": "0.17.1",
-		"@types/node": "24.10.1",
-		"@vitest/coverage-v8": "4.0.15",
-		"eslint": "9.39.1",
+		"@types/node": "24.10.4",
+		"@vitest/coverage-v8": "4.0.16",
+		"eslint": "9.39.2",
 		"husky": "9.1.7",
 		"lint-staged": "16.2.7",
-		"prettier": "3.7.1",
+		"prettier": "3.7.4",
 		"semantic-release": "25.0.2",
-		"tsdown": "0.16.8",
+		"tsdown": "0.18.4",
 		"typescript": "5.9.3",
-		"vitest": "4.0.15"
+		"vitest": "4.0.16"
 	}
 }
