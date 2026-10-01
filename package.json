@@ -48,8 +48,8 @@
 		"@diba1013/types": "0.2.0"
 	},
 	"devDependencies": {
-		"@commitlint/cli": "20.5.3",
-		"@commitlint/config-conventional": "20.5.3",
+		"@commitlint/cli": "21.2.3",
+		"@commitlint/config-conventional": "21.2.3",
 		"@diba1013/linter": "0.18.0",
 		"@types/node": "24.13.3",
 		"@vitest/coverage-v8": "4.1.10",
