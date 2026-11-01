@@ -53,7 +53,7 @@
 		"@diba1013/linter": "0.18.0",
 		"@types/node": "24.13.3",
 		"@vitest/coverage-v8": "4.1.10",
-		"eslint": "9.39.5",
+		"eslint": "10.13.0",
 		"husky": "9.1.7",
 		"lint-staged": "16.4.0",
 		"prettier": "3.9.5",
